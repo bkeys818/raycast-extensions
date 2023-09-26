@@ -16,7 +16,7 @@ import {
   UnwrapRecord,
   NotionObject,
   PagePropertyType,
-} from "./types";
+} from "../types";
 
 const clientId = "c843219a-d93c-403c-8e4d-e8aa9a987494";
 const client = new OAuth.PKCEClient({
