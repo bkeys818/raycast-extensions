@@ -2,7 +2,6 @@ import { Client, isNotionClientError } from "@notionhq/client";
 import { BlockObjectRequest } from "@notionhq/client/build/src/api-endpoints";
 import { showToast, Color, Form, Toast, OAuth, getPreferenceValues, Image, Icon } from "@raycast/api";
 import { markdownToBlocks } from "@tryfabric/martian";
-import { format, subMinutes } from "date-fns";
 import fetch from "node-fetch";
 import { NotionToMarkdown } from "notion-to-md";
 
@@ -13,10 +12,11 @@ import {
   DatabasePropertyOption,
   User,
   supportedPropTypes,
-  UnwrapRecord,
   NotionObject,
   PagePropertyType,
 } from "../types";
+
+import { formatDatabaseProperty } from "./database/property";
 
 const clientId = "c843219a-d93c-403c-8e4d-e8aa9a987494";
 const client = new OAuth.PKCEClient({
@@ -241,8 +241,6 @@ export async function queryDatabase(
 }
 
 type CreateRequest = Parameters<typeof notion.pages.create>[0];
-type DatabaseCreateProperties<T> = T extends { parent: { type?: "database_id" }; properties: infer U } ? U : never;
-type DatabaseCreateProperty = UnwrapRecord<DatabaseCreateProperties<CreateRequest>>;
 
 // Create database page
 export async function createDatabasePage(values: Form.Values) {
@@ -261,104 +259,14 @@ export async function createDatabasePage(values: Form.Values) {
     }
 
     Object.keys(props).forEach((formId) => {
-      const type = formId.match(/(?<=property::).*(?=::)/g)?.[0];
-      if (!type) {
-        return;
-      }
+      const type = formId.match(/(?<=property::).*(?=::)/g)?.[0] as DatabaseProperty["type"] | null;
+      if (!type) return;
       const propId = formId.match(new RegExp("(?<=property::" + type + "::).*", "g"))?.[0];
-      if (!propId) {
-        return;
-      }
       const value = values[formId];
+      if (!propId || !value) return;
 
-      if (value) {
-        switch (type) {
-          case "title":
-            arg.properties[propId] = {
-              title: [
-                {
-                  text: {
-                    content: value,
-                  },
-                },
-              ],
-            };
-            break;
-          case "number":
-            arg.properties[propId] = {
-              number: parseFloat(value),
-            };
-            break;
-          case "rich_text":
-            arg.properties[propId] = {
-              rich_text: [
-                {
-                  text: {
-                    content: value,
-                  },
-                },
-              ],
-            };
-            break;
-          case "url":
-            arg.properties[propId] = {
-              url: value,
-            };
-            break;
-          case "email":
-            arg.properties[propId] = {
-              email: value,
-            };
-            break;
-          case "phone_number":
-            arg.properties[propId] = {
-              phone_number: value,
-            };
-            break;
-          case "date": {
-            type DateProperty = Exclude<Extract<DatabaseCreateProperty, { type?: "date" }>["date"], null>;
-            type DatePropertyTimeZone = Required<DateProperty["time_zone"]>;
-            arg.properties[propId] = {
-              date: {
-                start: format(
-                  subMinutes(new Date(value), new Date().getTimezoneOffset()),
-                  "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'",
-                ),
-                time_zone: Intl.DateTimeFormat().resolvedOptions().timeZone as DatePropertyTimeZone,
-              },
-            };
-            break;
-          }
-
-          case "checkbox":
-            arg.properties[propId] = {
-              checkbox: value === 1 ? true : false,
-            };
-            break;
-          case "select":
-            if (value !== "_select_null_") {
-              arg.properties[propId] = {
-                select: { id: value },
-              };
-            }
-            break;
-          case "multi_select":
-            arg.properties[propId] = {
-              multi_select: value.map((multi_select_id: string) => ({ id: multi_select_id })),
-            };
-            break;
-          case "relation":
-            arg.properties[propId] = {
-              relation: value.map((relation_page_id: string) => ({ id: relation_page_id })),
-            };
-            break;
-          case "people":
-            arg.properties[propId] = {
-              people: value.map((user_id: string) => ({ id: user_id })),
-            };
-            break;
-        }
-      }
+      const formatted = formatDatabaseProperty(type, value);
+      if (formatted) arg.properties[propId] = formatted;
     });
 
     const page = await notion.pages.create(arg);
