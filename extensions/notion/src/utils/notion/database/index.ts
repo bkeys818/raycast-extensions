@@ -6,7 +6,10 @@ import { authorize, notion } from "../authorize";
 import { handleError, isNotNullOrUndefined, pageMapper } from "../global";
 import { formatDatabaseProperty } from "./property";
 
-import { Database, DatabaseProperty, DatabasePropertyOption, supportedPropTypes } from "../../types";
+import { supportedPropTypes } from "..";
+import { DatabaseProperty, DatabasePropertyOption } from "./property";
+
+export type { DatabaseProperty, DatabasePropertyOption };
 
 export async function fetchDatabases() {
   try {
@@ -186,4 +189,12 @@ export async function deleteDatabase(databaseId: string) {
   } catch (err) {
     return handleError(err, "Failed to delete database", undefined);
   }
+}
+export interface Database {
+  id: string;
+  last_edited_time: number;
+  title: string | null;
+  icon_emoji: string | null;
+  icon_file: string | null;
+  icon_external: string | null;
 }

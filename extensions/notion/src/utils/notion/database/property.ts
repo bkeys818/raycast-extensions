@@ -1,7 +1,7 @@
 import type { CreatePageParameters } from "@notionhq/client/build/src/api-endpoints";
 import { format, subMinutes } from "date-fns";
 
-import type { DatabaseProperty } from "../../types";
+import { _supportedPropTypes } from "..";
 
 type FormatDatabasePropertyParams = {
   [T in DatabaseProperty["type"]]: [type: T, value: FormValueForDatabaseProperty<T>];
@@ -53,3 +53,19 @@ export type FormValueForDatabaseProperty<T extends DatabaseProperty['type']> =
     : T extends "multi_select" | "relation" | "people" ? string[]
     : T extends "formula" ? null
     : string;
+// all possible types:
+// "number" | "title" | "rich_text" | "url" | "email" | "phone_number" | "date" | "checkbox" | "select" | "formula" | "people" | "relation" | "multi_select" | "rollup" | "files" | "created_by" | "created_time" | "last_edited_by" | "last_edited_time"
+
+export interface DatabaseProperty {
+  id: string;
+  type: (typeof _supportedPropTypes)[number];
+  name: string;
+  options: DatabasePropertyOption[];
+  relation_id?: string;
+}
+export interface DatabasePropertyOption {
+  id?: string;
+  name: string;
+  color?: string;
+  icon?: string;
+}

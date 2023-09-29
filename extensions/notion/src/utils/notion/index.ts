@@ -1,9 +1,32 @@
 import { Color, Icon } from "@raycast/api";
+import { Client } from "@notionhq/client";
 
-import { DatabaseProperty, PagePropertyType } from "../types";
+import { UnwrapArray, UnwrapPromise } from "../types";
+import { DatabaseProperty } from "./database/property";
+import { PagePropertyType } from "./page";
 
 export * from "./database";
 export * from "./page";
+export type NotionObject = UnwrapArray<UnwrapPromise<ReturnType<Client["search"]>>["results"]>;
+
+export const _supportedPropTypes = [
+  "title",
+  "number",
+  "rich_text",
+  "url",
+  "email",
+  "phone_number",
+  "date",
+  "checkbox",
+  "select",
+  "multi_select",
+  "formula",
+  "people",
+  "relation",
+  "status",
+] satisfies PagePropertyType["type"][];
+export const supportedPropTypes: PagePropertyType["type"][] = _supportedPropTypes;
+
 export * from "./user";
 
 export function notionColorToTintColor(notionColor: string | undefined): Color.ColorLike {

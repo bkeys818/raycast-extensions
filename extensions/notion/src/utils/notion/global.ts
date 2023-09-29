@@ -1,7 +1,7 @@
 import { isNotionClientError } from "@notionhq/client";
 import { showToast, Toast } from "@raycast/api";
 
-import { Page, NotionObject } from "../types";
+import { NotionObject, Page } from ".";
 
 export function isNotNullOrUndefined<T>(input: null | undefined | T): input is T {
   return input != null;

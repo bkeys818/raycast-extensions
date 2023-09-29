@@ -1,6 +1,5 @@
 import { authorize, notion } from "./authorize";
 import { handleError, isNotNullOrUndefined } from "./global";
-import { User } from "../types";
 
 export async function fetchUsers() {
   try {
@@ -21,4 +20,10 @@ export async function fetchUsers() {
   } catch (err) {
     return handleError(err, "Failed to fetch users", []);
   }
+}
+export interface User {
+  id: string;
+  type: string;
+  name: string | null;
+  avatar_url: string | null;
 }

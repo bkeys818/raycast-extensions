@@ -6,16 +6,8 @@ import { NotionToMarkdown } from "notion-to-md";
 import { authorize, notion } from "./authorize";
 import { handleError, pageMapper } from "./global";
 
-import {
-  Page,
-  Database,
-  DatabaseProperty,
-  DatabasePropertyOption,
-  User,
-  supportedPropTypes,
-  NotionObject,
-  PagePropertyType,
-} from "../types";
+import { NotionObject } from ".";
+import { UnwrapRecord } from "../types";
 
 export async function deletePage(pageId: string) {
   try {
@@ -141,3 +133,25 @@ export function getPageIcon(page: Page): Image.ImageLike {
 export function getPageName(page: Page): string {
   return (page.icon_emoji ? page.icon_emoji + " " : "") + (page.title ? page.title : "Untitled");
 }
+export interface Page {
+  object: "page" | "database";
+  id: string;
+  parent_page_id?: string;
+  parent_database_id?: string;
+  created_by?: string;
+  last_edited_time?: number;
+  last_edited_user?: string;
+  title: string | null;
+  icon_emoji: string | null;
+  icon_file: string | null;
+  icon_external: string | null;
+  url?: string;
+  properties: Record<string, PagePropertyType>;
+}
+
+export interface PageContent {
+  markdown: string | undefined;
+}
+
+type NotionProperties<T, TObject> = T extends { object: TObject; properties: infer U } ? U : never;
+export type PagePropertyType = UnwrapRecord<NotionProperties<NotionObject, "page">>;
