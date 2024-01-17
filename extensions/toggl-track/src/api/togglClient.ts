@@ -8,42 +8,23 @@ const base64encode = (str: string) => {
 const baseUrl = "https://api.track.toggl.com/api/v9";
 const authHeader = { Authorization: `Basic ${base64encode(`${togglApiToken}:api_token`)}` };
 
-export const get = async <T>(endpoint: string): Promise<T> => {
-  const response = await fetch(baseUrl + endpoint, {
-    headers: authHeader,
-  });
-  if (!response.ok) {
-    throw new Error(`${response.status} ${response.statusText}`);
-  }
-  return (await response.json()) as T;
-};
+export const get = async <T>(endpoint: string) => togglFetch<T>("GET", endpoint);
+export const post = async <T>(endpoint: string, body: unknown) => togglFetch<T>("POST", endpoint, body);
+export const patch = async <T>(endpoint: string, body: unknown) => togglFetch<T>("PATCH", endpoint, body);
 
-export const post = async <T>(endpoint: string, body: unknown): Promise<T> => {
-  const response = await fetch(baseUrl + endpoint, {
-    method: "POST",
-    headers: {
-      ...authHeader,
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify(body),
+const togglFetch = async <T>(method: string, endpoint: string, body?: unknown): Promise<T> => {
+  const headers: Record<string, string> = authHeader;
+  if (body !== undefined) headers["Content-Type"] = "application/json";
+  const res = await fetch(baseUrl + endpoint, {
+    method: method,
+    headers,
+    body: body ? JSON.stringify(body) : undefined,
   });
-  if (!response.ok) {
-    throw new Error(`${response.status} ${response.statusText}, ${await response.text()}`);
+  if (res.ok) return (await res.json()) as T;
+  else {
+    let msg = `${res.status} ${res.statusText}`;
+    const text = (await res.text()) as string;
+    if (text) msg += ", " + text;
+    throw new Error(msg);
   }
-  return (await response.json()) as T;
-};
-
-export const patch = async <T>(endpoint: string, body: unknown): Promise<T> => {
-  const response = await fetch(baseUrl + endpoint, {
-    method: "PATCH",
-    headers: {
-      ...authHeader,
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify(body),
-  });
-  if (!response.ok) {
-    throw new Error(`${response.status} ${response.statusText}, ${await response.text()}`);
-  }
-  return (await response.json()) as T;
 };
