@@ -23,6 +23,12 @@
       "title": "Start/Stop Time Entry",
       "description": "Start a new time entry or end the running time entry.",
       "mode": "view"
+    },
+    {
+      "name": "manageTags",
+      "title": "Manage Tags",
+      "description": "Create, delete, and rename tags.",
+      "mode": "view"
     }
   ],
   "preferences": [
