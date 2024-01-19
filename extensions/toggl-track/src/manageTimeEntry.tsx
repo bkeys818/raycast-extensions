@@ -6,13 +6,15 @@ import { ActionPanel, clearSearchBar, Icon, List, Action, showToast, Toast } fro
 import { createTimeEntry, TimeEntry } from "./api";
 import CreateTimeEntryForm from "./components/CreateTimeEntryForm";
 import { ExtensionContextProvider } from "./context/ExtensionContext";
-import { TimeEntryContextProvider, useTimeEntryContext } from "./context/TimeEntryContext";
+import { useRunningTimeEntry, useTimeEntries, useWorkspaces, useProjects } from "./hooks";
 
 dayjs.extend(duration);
 
 function ListView() {
-  const { isLoading, timeEntries, runningTimeEntry, projects, revalidateRunningTimeEntry, revalidateTimeEntries } =
-    useTimeEntryContext();
+  const { runningTimeEntry, isLoadingRunningTimeEntry, revalidateRunningTimeEntry } = useRunningTimeEntry();
+  const { timeEntries, isLoadingTimeEntries, revalidateTimeEntries } = useTimeEntries();
+  const { workspaces, isLoadingWorkspaces } = useWorkspaces();
+  const { projects, isLoadingProjects } = useProjects(workspaces);
 
   const getProjectById = (id: number) => projects.find((p) => p.id === id);
 
@@ -62,9 +64,11 @@ function ListView() {
 
   return (
     <List
-      isLoading={isLoading}
+      isLoading={isLoadingRunningTimeEntry || isLoadingTimeEntries || isLoadingWorkspaces || isLoadingProjects}
       throttle
-      navigationTitle={isLoading ? undefined : `Today: ${formatSeconds(totalDurationToday)}`}
+      navigationTitle={
+        isLoadingRunningTimeEntry || isLoadingTimeEntries ? undefined : `Today: ${formatSeconds(totalDurationToday)}`
+      }
     >
       {runningTimeEntry && (
         <RunningTimeEntry
@@ -85,7 +89,8 @@ function ListView() {
                   <ExtensionContextProvider>
                     <CreateTimeEntryForm
                       {...{
-                        projectsData: { projects, isLoadingProjects: isLoading },
+                        workspacesData: { workspaces, isLoadingWorkspaces },
+                        projectsData: { projects, isLoadingProjects },
                         revalidateRunningTimeEntry,
                       }}
                     />
@@ -129,9 +134,7 @@ function ListView() {
 export default function Command() {
   return (
     <ExtensionContextProvider>
-      <TimeEntryContextProvider>
-        <ListView />
-      </TimeEntryContextProvider>
+      <ListView />
     </ExtensionContextProvider>
   );
 }
