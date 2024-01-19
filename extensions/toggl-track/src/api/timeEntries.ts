@@ -15,7 +15,7 @@ type CreateTimeEntryParameters = {
   projectId?: number;
   workspaceId: number;
   description: string;
-  tags: string[];
+  tagIds: number[];
   taskId?: number;
   billable: boolean;
 };
@@ -23,7 +23,7 @@ export function createTimeEntry({
   projectId,
   workspaceId,
   description,
-  tags,
+  tagIds,
   taskId,
   billable,
 }: CreateTimeEntryParameters) {
@@ -36,7 +36,7 @@ export function createTimeEntry({
     duration: Math.floor((-1 * now.getTime()) / 1000),
     project_id: projectId !== -1 ? projectId : undefined,
     start: now.toISOString(),
-    tags,
+    tagIds,
     workspace_id: workspaceId,
     task_id: taskId,
   });
@@ -55,6 +55,7 @@ export interface TimeEntry {
   project_id: number;
   start: string;
   duration: number;
+  tag_ids: number[];
   tags: string[];
   workspace_id: number;
 }

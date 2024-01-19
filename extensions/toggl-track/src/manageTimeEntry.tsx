@@ -49,7 +49,7 @@ function ListView() {
         projectId: timeEntry.project_id,
         workspaceId: timeEntry.workspace_id,
         description: timeEntry.description,
-        tags: timeEntry.tags,
+        tagIds: timeEntry.tag_ids,
         billable: timeEntry.billable,
       });
       revalidateRunningTimeEntry();
@@ -83,9 +83,12 @@ function ListView() {
                 icon={{ source: Icon.Clock }}
                 target={
                   <ExtensionContextProvider>
-                    <TimeEntryContextProvider>
-                      <CreateTimeEntryForm />
-                    </TimeEntryContextProvider>
+                    <CreateTimeEntryForm
+                      {...{
+                        projectsData: { projects, isLoadingProjects: isLoading },
+                        revalidateRunningTimeEntry,
+                      }}
+                    />
                   </ExtensionContextProvider>
                 }
               />

@@ -9,4 +9,5 @@ export interface Workspace {
   id: number;
   name: string;
   premium: boolean;
+  projects_billable_by_default?: boolean;
 }

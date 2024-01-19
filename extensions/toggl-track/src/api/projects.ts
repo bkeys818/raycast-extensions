@@ -10,7 +10,7 @@ export async function getProjects(workspaceId: number): Promise<Project[] | null
 export interface Project {
   active: boolean;
   billable: boolean;
-  client_id: number;
+  client_id: number | null;
   color: string;
   id: number;
   name: string;

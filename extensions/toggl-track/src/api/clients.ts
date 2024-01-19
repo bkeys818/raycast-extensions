@@ -8,4 +8,5 @@ export function getClients(workspaceId: number) {
 export interface Client {
   id: number;
   name: string;
+  wid: number;
 }
