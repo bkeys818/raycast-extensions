@@ -4,6 +4,7 @@ import { ExtensionContextProvider } from "./context/ExtensionContext";
 import { useWorkspaces, useTags } from "./hooks";
 import { Workspace, Tag, deleteTag } from "./api";
 import TagForm from "./components/TagForm";
+import CreateTimeEntryForm from "./components/CreateTimeEntryForm";
 
 function ManageTags() {
   const { workspaces, isLoadingWorkspaces } = useWorkspaces();
@@ -78,6 +79,22 @@ function ManageTags() {
                     shortcut={{ key: "x", modifiers: ["ctrl"] }}
                     style={Action.Style.Destructive}
                     onAction={() => removeTag(tag)}
+                  />
+                  <Action.Push
+                    title="Create Time Entry With Tag"
+                    icon={Icon.PlusCircle}
+                    shortcut={{ key: "n", modifiers: ["cmd"] }}
+                    target={
+                      <ExtensionContextProvider>
+                        <CreateTimeEntryForm
+                          {...{
+                            workspacesData: { workspaces, isLoadingWorkspaces },
+                            tagsData: { tags, isLoadingTags },
+                            defaultTags: [tag],
+                          }}
+                        />
+                      </ExtensionContextProvider>
+                    }
                   />
                 </ActionPanel>
               }
