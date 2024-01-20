@@ -11,7 +11,7 @@ export default function TagForm({ workspaces, tag, revalidateTags }: TagFormProp
   const { pop } = useNavigation();
 
   async function handleSubmit({ name, workspace }: { name: string; workspace?: string }) {
-    const toast = await showToast(Toast.Style.Animated, tag ? "Updating" : "Creating" + " Tag");
+    const toast = await showToast(Toast.Style.Animated, (tag ? "Updating" : "Creating") + " Tag");
     try {
       if (tag) await updateTag(tag, name);
       else {
@@ -43,7 +43,7 @@ export default function TagForm({ workspaces, tag, revalidateTags }: TagFormProp
       {!tag && workspaces.length > 1 && (
         <Form.Dropdown id="workspace" title="Workspace">
           {workspaces.map((workspace) => (
-            <Form.Dropdown.Item title={workspace.name} value={workspace.id.toString()} />
+            <Form.Dropdown.Item title={workspace.name} value={workspace.id.toString()} key={workspace.id} />
           ))}
         </Form.Dropdown>
       )}
