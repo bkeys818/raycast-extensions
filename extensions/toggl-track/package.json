@@ -25,6 +25,12 @@
       "mode": "view"
     },
     {
+      "name": "manageTags",
+      "title": "Manage Tags",
+      "description": "Create, delete, and rename tags.",
+      "mode": "view"
+    },
+    {
       "name": "manageClients",
       "title": "Manage Clients",
       "description": "Create, delete, and rename clients.",
