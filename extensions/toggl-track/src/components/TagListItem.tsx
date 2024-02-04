@@ -7,9 +7,10 @@ interface TagListProps {
   workspace: Workspace;
   tag: Tag;
   revalidateTags: () => void;
+  workspaces: Workspace[];
 }
 
-export default function TagListItem({ workspace, tag, revalidateTags }: TagListProps) {
+export default function TagListItem({ workspace, tag, revalidateTags, workspaces }: TagListProps) {
   const canModifyTags =
     !workspace.only_admins_may_create_tags || workspace.role == "admin" || workspace.role == "projectlead";
   return (
@@ -23,7 +24,7 @@ export default function TagListItem({ workspace, tag, revalidateTags }: TagListP
                 title="Rename Tag"
                 icon={Icon.Pencil}
                 shortcut={{ key: "e", modifiers: ["cmd", "shift"] }}
-                target={<TagForm {...{ tag, workspace, revalidateTags }} />}
+                target={<TagForm {...{ tag, workspaces, revalidateTags }} />}
               />
               <Action
                 title="Delete Tag"
@@ -53,7 +54,7 @@ export default function TagListItem({ workspace, tag, revalidateTags }: TagListP
               title="Create New Tag"
               icon={Icon.Plus}
               shortcut={{ key: "n", modifiers: ["cmd", "shift"] }}
-              target={<TagForm {...{ workspace, revalidateTags }} />}
+              target={<TagForm {...{ workspaces, revalidateTags }} />}
             />
           </ActionPanel>
         ) : undefined

@@ -36,7 +36,7 @@ function ManageTags() {
           {groupedTags[searchFilter.id]?.length == 0 && <List.EmptyView title="No Tags Found" />}
           <List.Section key={searchFilter.id} title={searchFilter.name}>
             {groupedTags[searchFilter.id]?.map((tag) => (
-              <TagListItem workspace={searchFilter} key={tag.id} {...{ tag, revalidateTags }} />
+              <TagListItem workspace={searchFilter} key={tag.id} {...{ tag, revalidateTags, workspaces }} />
             ))}
           </List.Section>
         </>
@@ -46,7 +46,7 @@ function ManageTags() {
           {workspaces.map((workspace) => (
             <List.Section key={workspace.id} title={workspace.name}>
               {groupedTags[workspace.id]?.map((tag) => (
-                <TagListItem workspace={workspace} key={tag.id} {...{ tag, revalidateTags }} />
+                <TagListItem workspace={workspace} key={tag.id} {...{ tag, revalidateTags, workspaces }} />
               ))}
             </List.Section>
           ))}
