@@ -27,7 +27,7 @@ export default function ClientListItem({ workspace, client, revalidateClients, S
                 title="Rename Tag"
                 icon={Icon.Pencil}
                 shortcut={{ key: "e", modifiers: ["cmd", "shift"] }}
-                target={<ClientForm {...{ client, workspace, revalidateClients }} />}
+                target={<ClientForm {...{ client, revalidateClients }} />}
               />
               <Action
                 title="Delete Tag"
