@@ -19,7 +19,6 @@ export function DatabaseViewForm(props: {
       properties: databaseView?.properties ? databaseView.properties : {},
       sort_by: databaseView?.sort_by ? databaseView.sort_by : {},
       type: values.type ? values.type : "list",
-      name: values.name ? values.name : null,
     } as DatabaseView;
 
     if (values.type === "kanban") {
