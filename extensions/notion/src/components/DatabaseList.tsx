@@ -39,15 +39,11 @@ export function DatabaseList({ databasePage, setRecentPage, removeRecentPage, us
     return <List isLoading />;
   }
 
-  const navigationTitle = databaseView?.name
-    ? (databasePage.icon_emoji ? databasePage.icon_emoji + " " : "") + databaseView.name
-    : databaseName;
-
   return (
     <List
       isLoading={isLoading}
       searchBarPlaceholder="Filter pages"
-      navigationTitle={navigationTitle}
+      navigationTitle={databaseName}
       onSearchTextChange={setSearchText}
       searchBarAccessory={
         <List.Dropdown
