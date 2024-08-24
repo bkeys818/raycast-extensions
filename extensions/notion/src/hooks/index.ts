@@ -16,6 +16,8 @@ import {
 } from "../utils/notion";
 import { DatabaseView } from "../utils/types";
 
+export * from "./view-config";
+
 export function useUsers() {
   const value = useCachedPromise(() => fetchUsers());
 

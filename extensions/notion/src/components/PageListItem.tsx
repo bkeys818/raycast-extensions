@@ -42,6 +42,7 @@ type PageListItemProps = {
   users?: User[];
   icon?: Image.ImageLike;
   customActions?: JSX.Element[];
+  isKanban?: boolean;
 };
 
 export function PageListItem({
@@ -55,6 +56,7 @@ export function PageListItem({
   icon = getPageIcon(page),
   users,
   mutate,
+  isKanban,
 }: PageListItemProps) {
   const accessories: List.Item.Accessory[] = [];
 
@@ -221,22 +223,16 @@ export function PageListItem({
             />
           </ActionPanel.Section>
 
-          {databaseProperties && setDatabaseView ? (
-            <ActionPanel.Section title="View options">
-              {page.parent_database_id ? (
-                <Action.Push
-                  title="Set View Type"
-                  icon={databaseView?.type ? `./icon/view_${databaseView.type}.png` : "./icon/view_list.png"}
-                  shortcut={{ modifiers: ["cmd", "opt", "shift"], key: "v" }}
-                  target={
-                    <DatabaseViewForm
-                      databaseId={page.parent_database_id}
-                      databaseView={databaseView}
-                      setDatabaseView={setDatabaseView}
-                    />
-                  }
-                />
-              ) : null}
+          <ActionPanel.Section title="View options">
+            {page.parent_database_id && (
+              <Action.Push
+                title="Set View Type"
+                icon={isKanban ? `./icon/view_kanban.png` : "./icon/view_list.png"}
+                shortcut={{ modifiers: ["cmd", "opt", "shift"], key: "v" }}
+                target={<DatabaseViewForm databaseId={page.parent_database_id} />}
+              />
+            )}
+            {databaseProperties && setDatabaseView ? (
               <ActionSetVisibleProperties
                 databaseProperties={databaseProperties}
                 selectedPropertiesIds={visiblePropertiesIds}
@@ -256,8 +252,8 @@ export function PageListItem({
                   });
                 }}
               />
-            </ActionPanel.Section>
-          ) : null}
+            ) : null}
+          </ActionPanel.Section>
 
           {page.url ? (
             <ActionPanel.Section>
