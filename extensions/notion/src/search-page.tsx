@@ -18,6 +18,7 @@ function Search() {
         return { data: pages, hasMore, cursor: nextCursor };
       },
     [searchText],
+    { keepPreviousData: true },
   );
 
   const { data: users } = useUsers();
