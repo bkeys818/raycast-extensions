@@ -5,7 +5,6 @@ export interface DatabaseView {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   sort_by?: Record<string, any>;
   type?: "kanban" | "list";
-  name?: string | null;
   kanban?: KanbanView;
 }
 
