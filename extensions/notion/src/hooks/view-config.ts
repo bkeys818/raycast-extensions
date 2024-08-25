@@ -1,10 +1,10 @@
 import { LocalStorage, Cache, showToast, Toast } from "@raycast/api";
 import { useCachedState } from "@raycast/utils";
+import { useEffect } from "react";
+
 
 export function useKanbanViewConfig(databaseId: string) {
   const [kanbanConfig, setKanbanConfig] = useCachedState<KanbanConfig | undefined>(`kanban_config-${databaseId}`);
-  convertDepreciatedViewConfig();
-  // console.log(`Database(${databaseId}) config from cache:\n%O`, kanbanConfig);
   return { kanbanConfig, setKanbanConfig };
 }
 
@@ -16,6 +16,12 @@ export interface KanbanConfig {
   started_ids: string[];
   completed_ids: string[];
   canceled_ids: string[];
+}
+
+export function useConvertDepreciatedViewConfig() {
+  useEffect(() => {
+    convertDepreciatedViewConfig();
+  }, []);
 }
 
 /**
@@ -30,7 +36,7 @@ async function convertDepreciatedViewConfig() {
   const jsonString = await LocalStorage.getItem<string>("DATABASES_VIEWS");
   if (!jsonString) return;
 
-  cache.set("viewConfigMigrated", "in progress");
+  cache.set("viewConfigMigrationStatus", "in progress");
   const toast = await showToast({ title: "Migrating view configuration format", style: Toast.Style.Animated });
 
   const viewConfigs = JSON.parse(jsonString) as Record<string, Partial<DepreciatedDatabaseView>>;
@@ -53,7 +59,7 @@ async function convertDepreciatedViewConfig() {
   toast.title = "View configurations migrated";
   toast.style = Toast.Style.Success;
 
-  cache.set("viewConfigMigrated", "complete");
+  cache.set("viewConfigMigrationStatus", "complete");
 }
 
 export interface DepreciatedDatabaseView {

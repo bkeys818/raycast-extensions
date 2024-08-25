@@ -22,6 +22,7 @@ import {
   useRecentPages,
   useRelations,
   useUsers,
+  useConvertDepreciatedViewConfig,
 } from "../../hooks";
 import { createDatabasePage, DatabaseProperty } from "../../utils/notion";
 import { handleOnOpenPage } from "../../utils/openPage";
@@ -60,6 +61,8 @@ const NON_EDITABLE_PROPETY_TYPES = ["formula"];
 const filterNoEditableProperties = (dp: DatabaseProperty) => !NON_EDITABLE_PROPETY_TYPES.includes(dp.type);
 
 export function CreatePageForm({ mutate, launchContext, defaults }: CreatePageFormProps) {
+  useConvertDepreciatedViewConfig();
+
   const preferences = getPreferenceValues<CreatePageFormPreferences>();
   const defaultValues = launchContext?.defaults ?? defaults;
   const initialDatabaseId = defaultValues?.database;
