@@ -12,6 +12,7 @@ import {
 } from "@raycast/api";
 import { format, formatDistanceToNow } from "date-fns";
 
+import { useVisibleDatabasePropIds } from "../hooks";
 import {
   DatabaseProperty,
   deleteDatabase,
@@ -23,7 +24,6 @@ import {
   User,
 } from "../utils/notion";
 import { handleOnOpenPage } from "../utils/openPage";
-import { DatabaseView } from "../utils/types";
 
 import { DatabaseList } from "./DatabaseList";
 import { PageDetail } from "./PageDetail";
@@ -33,9 +33,7 @@ import { AppendToPageForm, CreatePageForm, DatabaseViewForm } from "./forms";
 
 type PageListItemProps = {
   page: Page;
-  databaseView?: DatabaseView;
   databaseProperties?: DatabaseProperty[];
-  setDatabaseView?: (databaseView: DatabaseView) => Promise<void>;
   setRecentPage: (page: Page) => Promise<void>;
   removeRecentPage: (id: string) => Promise<void>;
   mutate: () => Promise<void>;
@@ -49,19 +47,19 @@ export function PageListItem({
   page,
   customActions,
   databaseProperties,
-  databaseView,
   setRecentPage,
   removeRecentPage,
-  setDatabaseView,
   icon = getPageIcon(page),
   users,
   mutate,
   isKanban,
 }: PageListItemProps) {
+  const { visiblePropIds, setVisiblePropIds } = useVisibleDatabasePropIds("list", page.parent_database_id);
+
   const accessories: List.Item.Accessory[] = [];
 
-  if (databaseView && databaseView.properties) {
-    const properties = Object.keys(databaseView.properties).map((propId) =>
+  if (databaseProperties && visiblePropIds) {
+    const properties = visiblePropIds.map((propId) =>
       Object.entries(page.properties).find(([, e]) => {
         return e.id == propId;
       }),
@@ -93,9 +91,6 @@ export function PageListItem({
   const quickEditProperties = databaseProperties?.filter((property) =>
     ["checkbox", "status", "select", "multi_select", "status", "people"].includes(property.type),
   );
-
-  const visiblePropertiesIds: string[] =
-    databaseProperties?.filter((dp: DatabaseProperty) => databaseView?.properties?.[dp.id]).map((dp) => dp.id) || [];
 
   const title = page.title ? page.title : "Untitled";
 
@@ -232,27 +227,15 @@ export function PageListItem({
                 target={<DatabaseViewForm databaseId={page.parent_database_id} />}
               />
             )}
-            {databaseProperties && setDatabaseView ? (
+            {databaseProperties && (
               <ActionSetVisibleProperties
                 databaseProperties={databaseProperties}
-                selectedPropertiesIds={visiblePropertiesIds}
-                onSelect={(propertyId: string) => {
-                  setDatabaseView({
-                    ...databaseView,
-                    properties: { ...databaseView?.properties, [propertyId]: {} },
-                  });
-                }}
-                onUnselect={(propertyId: string) => {
-                  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-                  const { [propertyId]: _, ...remainingProperties } = databaseView?.properties ?? {};
-
-                  setDatabaseView({
-                    ...databaseView,
-                    properties: remainingProperties,
-                  });
-                }}
+                selectedPropertiesIds={visiblePropIds}
+                onSelect={(propertyId: string) => setVisiblePropIds([...visiblePropIds, propertyId])}
+                onUnselect={(propertyId: string) => setVisiblePropIds(visiblePropIds.filter((id) => id != propertyId))}
+                hideTitle
               />
-            ) : null}
+            )}
           </ActionPanel.Section>
 
           {page.url ? (

@@ -2,7 +2,7 @@ import { Action, ActionPanel, Icon, List } from "@raycast/api";
 import { useCachedPromise } from "@raycast/utils";
 import { useEffect, useState } from "react";
 
-import { useDatabaseProperties, useDatabasesView } from "../hooks";
+import { useDatabaseProperties } from "../hooks";
 import { queryDatabase, getPageName, Page, User } from "../utils/notion";
 
 import { DatabaseView } from "./DatabaseView";
@@ -30,13 +30,11 @@ export function DatabaseList({ databasePage, setRecentPage, removeRecentPage, us
     { keepPreviousData: true },
   );
   const { data: databaseProperties, isLoading: isLoadingDatabaseProperties } = useDatabaseProperties(databaseId);
-  const { data: databaseView, isLoading: isLoadingDatabaseViews, setDatabaseView } = useDatabasesView(databaseId);
-
   useEffect(() => {
     setRecentPage(databasePage);
   }, [databaseId]);
 
-  if (isLoadingDatabaseProperties || isLoadingDatabaseViews) {
+  if (isLoadingDatabaseProperties) {
     return <List isLoading />;
   }
 
@@ -62,8 +60,6 @@ export function DatabaseList({ databasePage, setRecentPage, removeRecentPage, us
         databaseId={databaseId}
         databasePages={databasePages ?? []}
         databaseProperties={databaseProperties}
-        databaseView={databaseView}
-        setDatabaseView={setDatabaseView}
         sort={sort}
         mutate={mutate}
         setRecentPage={setRecentPage}

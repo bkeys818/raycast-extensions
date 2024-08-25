@@ -68,8 +68,9 @@ export function CreatePageForm({ mutate, launchContext, defaults }: CreatePageFo
 
   const [databaseId, setDatabaseId] = useState<string | null>(initialDatabaseId ? initialDatabaseId : null);
   const { data: databaseProperties } = useDatabaseProperties(databaseId, filterNoEditableProperties);
-  const { visiblePropIds, setVisiblePropIds } = useVisibleDatabasePropIds(
-    databaseId || "__no_id__",
+  const { visiblePropIds, setVisiblePropIds } = useVisiblePropIds(
+    databaseId,
+    databaseProperties,
     launchContext?.visiblePropIds,
   );
   const { data: users } = useUsers();
@@ -300,4 +301,21 @@ Please note that HTML tags and thematic breaks are not supported in Notion due t
       />
     </Form>
   );
+}
+
+function useVisiblePropIds(
+  databaseId: string | null,
+  databaseProperties: DatabaseProperty[],
+  quicklinkProps?: string[],
+): ReturnType<typeof useVisibleDatabasePropIds> {
+  if (quicklinkProps) {
+    const [visiblePropIds, setVisiblePropIds] = useState<string[]>(quicklinkProps);
+    return { visiblePropIds, setVisiblePropIds };
+  } else {
+    return useVisibleDatabasePropIds(
+      "form",
+      databaseId ?? "__no_id__",
+      databaseProperties.map((dp) => dp.id),
+    );
+  }
 }
