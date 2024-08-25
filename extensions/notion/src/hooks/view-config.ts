@@ -2,6 +2,27 @@ import { LocalStorage, Cache, showToast, Toast } from "@raycast/api";
 import { useCachedState } from "@raycast/utils";
 import { useEffect } from "react";
 
+export function useVisibleDatabasePropIds(
+  context: "list",
+  databaseId: string | undefined,
+): { visiblePropIds: string[]; setVisiblePropIds: (value: string[]) => void };
+export function useVisibleDatabasePropIds(
+  context: "form" | "page",
+  databaseId: string | undefined,
+  initialValue: string[],
+): { visiblePropIds: string[]; setVisiblePropIds: (value: string[]) => void };
+export function useVisibleDatabasePropIds(
+  context: "list" | "page" | "form",
+  databaseId: string | undefined,
+  initialValue: string[] = [],
+) {
+  const [visiblePropIds, setVisiblePropIds] = useCachedState<string[]>(
+    `visible_props-${databaseId ?? "no_database_id"}-${context}`,
+    initialValue,
+  );
+
+  return { visiblePropIds, setVisiblePropIds };
+}
 
 export function useKanbanViewConfig(databaseId: string) {
   const [kanbanConfig, setKanbanConfig] = useCachedState<KanbanConfig | undefined>(`kanban_config-${databaseId}`);
