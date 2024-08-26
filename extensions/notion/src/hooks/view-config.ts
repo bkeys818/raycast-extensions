@@ -2,8 +2,6 @@ import { LocalStorage, Cache, showToast, Toast, open, popToRoot } from "@raycast
 import { useCachedState } from "@raycast/utils";
 import { useEffect } from "react";
 
-let key = "";
-
 export function useVisibleDatabasePropIds(
   context: "list",
   databaseId: string | undefined,
@@ -22,14 +20,6 @@ export function useVisibleDatabasePropIds(
     `visible_props-${databaseId ?? "no_database_id"}-${context}`,
     initialValue,
   );
-
-  useEffect(() => {
-    const newKey = `visible_props-${databaseId ?? "no_database_id"}-${context}`;
-    if (newKey != key) {
-      console.log(`key: %s\nvalue: %O\n`, newKey, visiblePropIds);
-      key = newKey;
-    }
-  }, [databaseId, context, visiblePropIds]);
 
   return { visiblePropIds, setVisiblePropIds };
 }
