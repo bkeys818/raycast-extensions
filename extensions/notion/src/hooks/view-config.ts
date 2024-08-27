@@ -1,4 +1,4 @@
-import { LocalStorage, Cache, showToast, Toast } from "@raycast/api";
+import { LocalStorage, Cache, showToast, Toast, open, popToRoot } from "@raycast/api";
 import { useCachedState } from "@raycast/utils";
 import { useEffect } from "react";
 
@@ -60,35 +60,51 @@ async function convertDepreciatedViewConfig() {
   cache.set("viewConfigMigrationStatus", "in progress");
   const toast = await showToast({ title: "Migrating view configuration format", style: Toast.Style.Animated });
 
-  const viewConfigs = JSON.parse(jsonString) as Record<string, Partial<DepreciatedDatabaseView>>;
+  try {
+    const viewConfigs = JSON.parse(jsonString) as Record<string, Partial<DepreciatedDatabaseView>>;
 
-  for (const databaseId in viewConfigs) {
-    const { kanban } = viewConfigs[databaseId];
+    for (const databaseId in viewConfigs) {
+      const { properties, create_properties, kanban, type } = viewConfigs[databaseId];
+      if (properties) {
+        cache.set(`visible_props-${databaseId}-list`, JSON.stringify(Object.keys(properties)));
+      }
+      if (create_properties) {
+        cache.set(`visible_props-${databaseId}-form`, JSON.stringify(create_properties));
+      }
+      if (kanban)
+        cache.set(
+          `kanban_config-${databaseId}`,
+          JSON.stringify({
+            ...kanban,
+            active: type == "kanban",
+          } satisfies KanbanConfig),
+        );
+    }
 
-    if (kanban)
-      cache.set(
-        `kanban_config-${databaseId}`,
-        JSON.stringify({
-          ...kanban,
-          active: viewConfigs[databaseId].type == "kanban",
-        } satisfies KanbanConfig),
-      );
+    await LocalStorage.removeItem("DATABASES_VIEWS");
 
-    // TOOD: Handle the rest of viewConfigs
+    toast.title = "View configurations migrated";
+    toast.style = Toast.Style.Success;
+    cache.set("viewConfigMigrationStatus", "complete");
+    popToRoot(); // Don't love this, but it's the only way I can think to update state. It will only run once.
+  } catch (error) {
+    console.warn(error);
+    toast.title = "Migrated failed";
+    toast.message = "Please open an issue.\n" + String(error);
+    toast.primaryAction = {
+      title: "Open Issue",
+      onAction: () =>
+        open(
+          "https://github.com/raycast/extensions/issues/new?template=extension_bug_report.yml&title=%5BNotion%5D+Migration+of+view+configurations+failed&extension-url=https%3A%2F%2Fwww.raycast.com%2Fnotion%2Fnotion",
+        ),
+    };
   }
-
-  toast.title = "View configurations migrated";
-  toast.style = Toast.Style.Success;
-
-  cache.set("viewConfigMigrationStatus", "complete");
 }
 
 export interface DepreciatedDatabaseView {
-  // // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  // properties?: Record<string, any>;
-  // create_properties?: string[];
-  // // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  // sort_by?: Record<string, any>;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  properties?: Record<string, any>;
+  create_properties?: string[];
   type?: "kanban" | "list";
   kanban?: {
     property_id: string;
