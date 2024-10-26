@@ -1,5 +1,6 @@
 import { Form, Icon, Image } from "@raycast/api";
 import type { useForm } from "@raycast/utils";
+import { showFailureToast } from "@raycast/utils";
 
 import {
   notionColorToTintColor,
@@ -44,17 +45,26 @@ export function PagePropertyField({
       return <Form.Checkbox {...itemProps} {...sharedProps} key={itemProps.id} label={sharedProps.placeholder} />;
     case "select":
     case "status":
+      if (!databaseProperty.config)
+        showFailureToast(new Error(`Property: \n${JSON.stringify(databaseProperty)}`), {
+          title: "We found the culprit!",
+        });
       return (
         <Form.Dropdown {...itemProps} {...sharedProps} key={itemProps.id}>
-          {databaseProperty.config.options.map(createMapOptionsFunc(Form.Dropdown.Item))}
+          {databaseProperty.config?.options.map(createMapOptionsFunc(Form.Dropdown.Item))}
         </Form.Dropdown>
       );
     case "multi_select":
     case "relation":
     case "people": {
       let options: ItemOption[] | Page[] | User[] | undefined;
-      if (databaseProperty.type == "multi_select") options = databaseProperty.config.options;
-      else if (databaseProperty.type == "people") options = users;
+      if (databaseProperty.type == "multi_select") {
+        if (!databaseProperty.config)
+          showFailureToast(new Error(`Property: \n${JSON.stringify(databaseProperty)}`), {
+            title: "We found the culprit!",
+          });
+        else options = databaseProperty.config?.options;
+      } else if (databaseProperty.type == "people") options = users;
       else if (relationPages && databaseProperty.type == "relation") {
         const relationId = databaseProperty.config.database_id;
         if (relationId) options = relationPages[relationId];
